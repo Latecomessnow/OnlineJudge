@@ -17,7 +17,7 @@ namespace ns_log
         FATAL
     };
     // 让日志返回标准输出流，以便于自定义输出
-    std::ostream &Log(const std::string &level, const std::string &file_name, int line)
+    inline std::ostream &Log(const std::string &level, const std::string &file_name, int line)
     {
         // 1. 添加日志等级
         std::string message = "[";
@@ -36,11 +36,11 @@ namespace ns_log
 
         // 4. 添加日志时间
         message += "[";
-        message += "待定";
+        message += TimeUtil::GetTimeStamp();
         message += "]";
         return std::cout;
     }
-    // Log() << "message"  // 待#号可以直接传过去的是字符，而不是整数了
+    // Log() << "message"  // 带#号可以直接传过去的是字符，而不是整数了
     // 开放式日志接口
     #define LOG(level) Log(#level, __FILE__, __LINE__)
 }
