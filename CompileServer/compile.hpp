@@ -2,6 +2,10 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "../Common/util.hpp"
 
 // 只负责进行代码的编译
@@ -25,11 +29,42 @@ namespace ns_compiler
         // 1234 -> ./temp/1234.stderr
         static bool Compile(const std::string &file_name)
         {
-            pid_t id = fork();
-            if (id < 0)
+            pid_t pid = fork();
+            if (pid < 0)
             {
                 return false;
             }
+            else if (pid == 0)
+            {
+                // 子进程有可能编译失败，将编译器生成的标准重定向到一个临时文件
+                int stderr = open(PathUtil::Stderr(file_name).c_str(), O_CREAT | O_WRONLY, 0644);
+                if (stderr < 0)
+                {
+                    exit(1);
+                }
+
+                // 重定向标准错误到stderr这个文件描述符
+                dup2(stderr, 2);
+
+                // 程序替换，并不影响进程的文件描述符表
+                // 子进程调用编译器，完成对代码的编译
+                // 程序替换，g++ -o target src -std=c++11
+                execlp("g++", "-o", PathUtil::Exe(file_name).c_str(),
+                       PathUtil::Src(file_name).c_str(), "-std=c++11", nullptr /*程序替换最后一个参数为空*/);
+
+                exit(2);
+            }
+            else
+            {
+                // 父进程等待子进程
+                waitpid(pid, nullptr, 0);
+                // 编译是否成功，看有没有形成对应的可在执行程序
+                if (FileUtil::IsFileExists(PathUtil::Exe(file_name)))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     };
 }
