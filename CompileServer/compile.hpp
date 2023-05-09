@@ -56,7 +56,8 @@ namespace ns_compiler
                 // 程序替换，并不影响进程的文件描述符表
                 // 子进程调用编译器，完成对代码的编译
                 // 程序替换，g++ -o target src -std=c++11
-                execlp("g++", "-o", PathUtil::Exe(file_name).c_str(),
+                // 要先告诉执行的是g++方法，然后才是g++ 后的命令
+                execlp("g++", "g++", "-o", PathUtil::Exe(file_name).c_str(),
                        PathUtil::Src(file_name).c_str(), "-std=c++11", nullptr /*程序替换最后一个参数为空*/);
                 // 程序替换一般不会失败，如果失败了走到这则说明没有成功的形成可执行文件
                 LOG(ERROR) << "启动g++编译器失败，可能是参数出现了错误"
@@ -70,7 +71,7 @@ namespace ns_compiler
                 // 编译是否成功，看有没有形成对应的可在执行程序
                 if (FileUtil::IsFileExists(PathUtil::Exe(file_name)))
                 {
-                    LOG(INFO) << PathUtil::Src(file_name) << "编译成功!"
+                    LOG(INFO) << PathUtil::Src(file_name) << " 编译成功!"
                               << "\n";
                     return true;
                 }
