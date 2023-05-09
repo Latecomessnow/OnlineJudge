@@ -10,15 +10,15 @@ namespace ns_util
     {
     public:
         // 构建源文件路径+后缀的完整文件名
-        static void Src(const std::string &file_name)
+        static std::string Src(const std::string &file_name)
         {
         }
         // 构建可执行程序的完整路径+后缀名
-        static void Exe(const std::string &file_name)
+        static std::string Exe(const std::string &file_name)
         {
         }
         // 构建该程序对应的标准错误的完整路径+后缀名
-        static void Stderr(const std::string &file_name)
+        static std::string Stderr(const std::string &file_name)
         {
         }
     };
