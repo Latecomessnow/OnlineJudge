@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <string>
 
 // 编译模块，运行模块都有可能会用上的添加后缀名...
@@ -61,7 +62,11 @@ namespace ns_util
     public:
         static std::string GetTimeStamp()
         {
-            
+            // 调用gettimeofday获取时间戳
+            struct timeval _time;
+            gettimeofday(&_time, nullptr); // 设为nullptr表示要调用gettimeofday
+            // 返回时间戳秒数
+            return std::to_string(_time.tv_sec);
         }
     };
 } // namespace ns_util
