@@ -20,6 +20,8 @@ int main()
     {
         signal(i, handler);
     }
+
+    // 会收到24号信号SIGXCPU，占用CPU时间过长
     // 限制程序运行时长
     // struct rlimit r;
     // r.rlim_cur = 1; // 限制占用CPU秒数
