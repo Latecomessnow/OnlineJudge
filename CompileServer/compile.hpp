@@ -41,8 +41,9 @@ namespace ns_compiler
             }
             else if (pid == 0)
             {
+                umask(0);
                 // 子进程有可能编译失败，将编译器生成的标准重定向到一个临时文件
-                int stderr = open(PathUtil::Stderr(file_name).c_str(), O_CREAT | O_WRONLY, 0644);
+                int stderr = open(PathUtil::CompileError(file_name).c_str(), O_CREAT | O_WRONLY, 0644);
                 if (stderr < 0)
                 {
                     LOG(WARNING) << "打开错误文件失败，没有形成stderr文件"
