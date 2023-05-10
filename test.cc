@@ -33,7 +33,7 @@ int main()
     r.rlim_max = RLIM_INFINITY;
     setrlimit(RLIMIT_AS, &r);
     int count = 0;
-    // 会收到6号信号SIGABRT，内存申请失败
+    // 会收到6号信号SIGABRT，内存申请失败, 抛异常
     while (1) 
     {
         int *p = new int[1024 * 1024];
