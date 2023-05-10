@@ -38,9 +38,12 @@ namespace ns_log
         message += "[";
         message += TimeUtil::GetTimeStamp();
         message += "]";
+
+        // cout 本质 内部是包含缓冲区的
+        std::cout << message; // 不要endl进行刷新
         return std::cout;
     }
-    // Log() << "message"  // 带#号可以直接传过去的是字符，而不是整数了
-    // 开放式日志接口
-    #define LOG(level) Log(#level, __FILE__, __LINE__)
+// Log() << "message"  // 带#号可以直接传过去的是字符，而不是整数了
+// 开放式日志接口
+#define LOG(level) Log(#level, __FILE__, __LINE__)
 }

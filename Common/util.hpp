@@ -23,6 +23,8 @@ namespace ns_util
             path_name += suffix;
             return path_name;
         }
+
+        // 编译时需要的临时文件
         // 构建源文件路径+后缀的完整文件名
         static std::string Src(const std::string &file_name)
         {
@@ -32,6 +34,20 @@ namespace ns_util
         static std::string Exe(const std::string &file_name)
         {
             return AddSuffix(file_name, ".exe");
+        }
+        static std::string CompileError(const std::string &file_name)
+        {
+            return AddSuffix(file_name, ".compile_error");
+        }
+
+        // 运行时需要的临时文件
+        static std::string Stdin(const std::string &file_name)
+        {
+            return AddSuffix(file_name, ".stdin");
+        }
+        static std::string Stdout(const std::string &file_name)
+        {
+            return AddSuffix(file_name, ".stdout");
         }
         // 构建该程序对应的标准错误的完整路径+后缀名
         static std::string Stderr(const std::string &file_name)
