@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <fcntl.h>
 #include "../Common/log.hpp"
 #include "../Common/util.hpp"
@@ -21,13 +23,30 @@ namespace ns_runner
         ~Runner() {}
 
     public:
+        static void SetProcLimit(int _cpu_limit, int _mem_limit)
+        {
+            // 设置CPU时长
+            struct rlimit cpu_limit;
+            cpu_limit.rlim_max = RLIM_INFINITY;
+            cpu_limit.rlim_cur = _cpu_limit;
+            setrlimit(RLIMIT_CPU, &cpu_limit);
+
+            // 设置内存大小
+            struct rlimit mem_limit;
+            mem_limit.rlim_max = RLIM_INFINITY;
+            mem_limit.rlim_cur = _mem_limit * 1024; // 转化成为KB
+            setrlimit(RLIMIT_AS, &mem_limit);
+        }
+
         /********************************************
          * 返回值 > 0: 程序异常了，退出时收到了信号，返回值就是对应的信号编号
          * 返回值 == 0: 程序正确运行完毕，但结果不一定正确，结果放进了.stdout的临时文件
          * 返回值 < 0: 程序内部代码出现了错误
+         * cpu_limit: 该程序运行时，可以使用的最大CPU上限
+         * mem_limit: 该程序运行时，可以使用的最大内存大小(KB)
          *********************************************/
         // 运行时只需要指定文件名，不需要带路径，带后缀
-        static int Run(const std::string &file_name)
+        static int Run(const std::string &file_name, int cpu_limit, int mem_limit)
         {
             /******************************************
              * 程序运行
@@ -83,6 +102,8 @@ namespace ns_runner
                 dup2(_stdout_fd, 1);
                 dup2(_stderr_fd, 2);
 
+                SetProcLimit(cpu_limit, mem_limit);
+                
                 // 此时我们已知可执行程序文件的完整路径_execute, 所以此处需要带路径的比较好
                 // 而不是需要去环境变量里去找
                 // /bin/ls
