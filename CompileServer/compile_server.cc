@@ -1,9 +1,6 @@
-#include <iostream>
-#include "compile.hpp"
-#include "runner.hpp"
+#include "compile_run.hpp"
 
-using namespace ns_compiler;
-using namespace ns_runner;
+using namespace ns_compile_and_run;
 
 int main()
 {

@@ -71,7 +71,7 @@ namespace ns_runner
             std::string _stderr = PathUtil::Stderr(file_name);
 
             // 打开文件描述符让子进程继承下去
-            int _stdin_fd = open(_stdin.c_str(), O_CREAT | O_RDONLY, 0644);
+            int _stdin_fd  = open(_stdin.c_str(), O_CREAT | O_RDONLY, 0644);
             int _stdout_fd = open(_stdout.c_str(), O_CREAT | O_WRONLY, 0644);
             int _stderr_fd = open(_stderr.c_str(), O_CREAT | O_WRONLY, 0644);
 
