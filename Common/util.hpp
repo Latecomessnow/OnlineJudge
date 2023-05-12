@@ -77,7 +77,11 @@ namespace ns_util
         }
         static bool WritweFile(const std::string& file_name, const std::string& code)
         {
-            
+
+        }
+        static std::string ReadFile(const std::string& file_name)
+        {
+            return 
         }
     };
 
