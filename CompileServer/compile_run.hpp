@@ -16,13 +16,16 @@ namespace ns_compile_and_run
     class CompileAndRun
     {
     public:
+        static std::string CodeToDesc(int code, const std::string &file_name)
+        {
+        }
         /***********************************************************
          * 输入:
          * code: 用户提交提交过来的代码
          * stdin: 用户有可能进行标准输入，可做扩展
          * cpu_limit: 时间要求
          * mem_limit: 空间要求
-         * 
+         *
          * 输出:
          * 必填:
          * status: 用户提交代码运行后的返回值
@@ -49,22 +52,117 @@ namespace ns_compile_and_run
             int cpu_limit = in_value["cpu_limit"].asInt();
             int mem_limit = in_value["mem_limit"].asInt();
 
+            Json::Value out_value;
+
+            // goto end之间不能定义变量
+            int status_code = 0;
+            int run_result = 0;
+
+            std::string file_name; // 需要内部形成的唯一文件名
+
             if (code.size() == 0)
             {
-                // TODO
+                status_code = -1; // 代码为空
+                goto END;
+            }
+
+            // 形成的文件名只具有唯一性，没有目录没有后缀
+            // 毫秒级时间戳+原子性递增唯一值: 来保证唯一性
+            file_name = FileUtil::UniqFileName();
+            // 形成临时代码文件src
+            if (!FileUtil::WritweFile(PathUtil::Src(file_name), code))
+            {
+                status_code = -2; // 未知错误
+                goto END;
+            }
+
+            if (!Compiler::Compile(file_name))
+            {
+                // 编译失败
+                status_code = -3; // 代码编译时发生错误
+                goto END;
+            }
+
+            run_result = Runner::Run(file_name, cpu_limit, mem_limit);
+            if (run_result > 0)
+            {
+                // 程序运行崩溃，收到某个信号了
+                status_code = run_result;
+            }
+            else if (run_result < 0)
+            {
+                // 服务器内部代码发生错误
+                status_code = -2; // 未知错误
+            }
+            else
+            {
+                // 运行成功
+                status_code = 0;
+            }
+        END:
+            out_value["status"] = status_code;
+            out_value["reason"] = CodeToDesc(status_code, file_name);
+            if (status_code == 0)
+            {
+                // 整个过程全部成功
+                out_value["stdout"] = FileUtil::ReadFile(PathUtil::Stdout(file_name));
+                out_value["stderr"] = FileUtil::ReadFile(PathUtil::Stderr(file_name));
+            }
+            // 反序列化工作
+            Json::StyledWriter writer;
+            *out_json = writer.write(out_value);
+
+            /***********************************************
+            if (code.size() == 0) // 代码文件出错
+            {
+                out_value["status"] = -1; // 代表用户提交代码为空
+                out_value["reason"] = "用户提交代码为空";
+                // 序列化过程
+                return;
             }
 
             // 形成的文件名只具有唯一性，没有目录和后缀名
+            // 毫秒级时间戳+原子性递增唯一值来保证唯一性
             std::string file_name = FileUtil::UniqFileName();
 
             // 形成临时的代码文件
-            FileUtil::WritweFile(PathUtil::Src(file_name), code);
+            if (!FileUtil::WritweFile(PathUtil::Src(file_name), code))
+            {
+                out_value["status"] = -2; // 未知错误---不暴露给用户
+                out_value["reason"] = "发生了未知错误";
+                // 序列化过程
+                return;
+            }
 
             // 编译
-            Compiler::Compile(file_name);
+            if (Compiler::Compile(file_name))
+            {
+                // 编译失败
+                out_value["status"] = -3; // 代表代码编译时发生了错误
+                // 将编译报错的的错误信息返回给用户(该信息已经存在了temp目录下的.compile_error文件)
+                out_value["reason"] = FileUtil::ReadFile(PathUtil::CompileError(file_name));
+                // 序列化过程
+                return;
+            }
 
             // 运行
-            Runner::Run(file_name, cpu_limit, mem_limit);
+            int code = Runner::Run(file_name, cpu_limit, mem_limit);
+            if (code < 0)
+            {
+                // 服务器内部代码出现错误
+                out_value["status"] = -2; // 未知错误---不暴露给用户
+                out_value["reason"] = "发生了未知错误";
+                // 序列化过程
+                return;
+            }
+            else if (code > 0)
+            {
+                out_value["status"] = code; // 运行时报错，程序异常收到某个信号了
+                out_value["reason"] = SignoToDesc(code);
+                // 序列化过程
+                return;
+            }
+            ***********************************************/
         }
     };
 }
