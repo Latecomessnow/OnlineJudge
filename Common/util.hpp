@@ -70,6 +70,15 @@ namespace ns_util
             }
             return false;
         }
+        static std::string UniqFileName()
+        {
+            // TODO
+            return "";
+        }
+        static bool WritweFile(const std::string& file_name, const std::string& code)
+        {
+            
+        }
     };
 
     // 时间功能
