@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <jsoncpp/json/json.h>
+#include <signal.h>
 #include "compile.hpp"
 #include "runner.hpp"
 #include "../Common/log.hpp"
@@ -16,8 +17,43 @@ namespace ns_compile_and_run
     class CompileAndRun
     {
     public:
+        // code > 0 进程收到信号导致异常崩溃
+        // code < 0 程序内部发生错误，如代码为空，编译失败、形成唯一文件失败等等
+        // code == 0 编译运行整个过程全部成功
         static std::string CodeToDesc(int code, const std::string &file_name)
         {
+            std::string desc;
+            switch (code)
+            {
+            case 0:
+                desc = "编译运行成功";
+                break;
+            case -1:
+                desc = "提交代码为空";
+                break;
+            case -2:
+                desc = "未知错误";
+                break;
+            case -3:
+                // desc = "代码编译失败";
+                // 编译失败时我们希望读取编译失败的报错信息，所以此时读取一下在编译失败时
+                // 产生的那个.compile_error文件
+                FileUtil::ReadFile(PathUtil::CompileError(file_name), &desc, true);
+                break;
+            case SIGABRT: // 6
+                desc = "代码使用内存超过限制";
+                break;
+            case SIGXCPU: // 24
+                desc = "CPU使用超时";
+                break;
+            case SIGFPE: // 8
+                desc = "浮点数溢出错误";
+                break;
+            default:
+                desc = "未知: " + std::to_string(code);
+                break;
+            }
+            return desc;
         }
         /***********************************************************
          * 输入:
@@ -70,19 +106,17 @@ namespace ns_compile_and_run
             // 毫秒级时间戳+原子性递增唯一值: 来保证唯一性
             file_name = FileUtil::UniqFileName();
             // 形成临时代码文件src
-            if (!FileUtil::WritweFile(PathUtil::Src(file_name), code))
+            if (!FileUtil::WriteFile(PathUtil::Src(file_name), code))
             {
                 status_code = -2; // 未知错误
                 goto END;
             }
-
             if (!Compiler::Compile(file_name))
             {
                 // 编译失败
                 status_code = -3; // 代码编译时发生错误
                 goto END;
             }
-
             run_result = Runner::Run(file_name, cpu_limit, mem_limit);
             if (run_result > 0)
             {
@@ -105,8 +139,13 @@ namespace ns_compile_and_run
             if (status_code == 0)
             {
                 // 整个过程全部成功
-                out_value["stdout"] = FileUtil::ReadFile(PathUtil::Stdout(file_name));
-                out_value["stderr"] = FileUtil::ReadFile(PathUtil::Stderr(file_name));
+                std::string _stdout;
+                FileUtil::ReadFile(PathUtil::Stdout(file_name), &_stdout, true);
+                out_value["stdout"] = _stdout;
+
+                std::string _stderr;
+                FileUtil::ReadFile(PathUtil::Stderr(file_name), &_stderr, true);
+                out_value["stderr"] = _stderr;
             }
             // 反序列化工作
             Json::StyledWriter writer;
