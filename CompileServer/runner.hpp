@@ -71,7 +71,7 @@ namespace ns_runner
             std::string _stderr = PathUtil::Stderr(file_name);
 
             // 打开文件描述符让子进程继承下去
-            int _stdin_fd  = open(_stdin.c_str(), O_CREAT | O_RDONLY, 0644);
+            int _stdin_fd = open(_stdin.c_str(), O_CREAT | O_RDONLY, 0644);
             int _stdout_fd = open(_stdout.c_str(), O_CREAT | O_WRONLY, 0644);
             int _stderr_fd = open(_stderr.c_str(), O_CREAT | O_WRONLY, 0644);
 
@@ -103,7 +103,7 @@ namespace ns_runner
                 dup2(_stderr_fd, 2);
 
                 SetProcLimit(cpu_limit, mem_limit);
-                
+
                 // 此时我们已知可执行程序文件的完整路径_execute, 所以此处需要带路径的比较好
                 // 而不是需要去环境变量里去找
                 // /bin/ls
@@ -120,7 +120,7 @@ namespace ns_runner
                 waitpid(pid, &status, 0); // 此时父进程需要关心子进程的退出状态，才能知道子进程是否正确运行完
                 // 我们需要知道程序的错误原因是什么，也就是子进程收到什么信号
                 // 再Linux中，程序运行异常，一定是因为收到了信号
-                LOG(INFO) << "运行完毕, info: " << (status & 0x7F) << "\n";
+                LOG(INFO) << "运行完毕, info! 退出码: " << (status & 0x7F) << "\n";
                 return status & 0x7F;
             }
         }
