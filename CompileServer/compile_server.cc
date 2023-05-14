@@ -5,8 +5,12 @@ using namespace ns_compile_and_run;
 // 编译服务随时可能被多个人请求，必须保证传递上来的code，形成源文件名称的时候，要具有
 // 唯一性，要不然多个用户之间会互相影响
 // ./compile_server port
+
 int main()
 {
+    // 提供编译服务，打包形成一个网络服务
+    // 引入第三方开源库, cpp-httplib
+
     // 通过http让client给我们上传一个json string
     // in_json: {"code": "#include...", "input": "","cpu_limit":1, "mem_limit":10240}
     // out_json: {"status":"0", "reason":"","stdout":"","stderr":"",}
@@ -22,7 +26,7 @@ int main()
         int main()
         {
             std::cout << "Test Hello" << std::endl;
-            while (1);
+            sfjkdl
             return 0;
         })";
     in_value["input"] = "";
