@@ -3,6 +3,7 @@
 #include <iostream>
 #include <jsoncpp/json/json.h>
 #include <signal.h>
+#include <unistd.h>
 #include "compile.hpp"
 #include "runner.hpp"
 #include "../Common/log.hpp"
@@ -54,6 +55,28 @@ namespace ns_compile_and_run
                 break;
             }
             return desc;
+        }
+        static void RemoveTempFile(const std::string& file_name)
+        {
+            // 清理临时文件的个数是不确定的，但是有些我们是知道的
+            // IsFileExists带路径的文件查找，unlink带路径的文件删除
+            std::string _src = PathUtil::Src(file_name);
+            if (FileUtil::IsFileExists(_src)) unlink(_src.c_str());
+
+            std::string _compile_error = PathUtil::CompileError(file_name);
+            if (FileUtil::IsFileExists(_compile_error)) unlink(_compile_error.c_str());
+
+            std::string _execute = PathUtil::Exe(file_name);
+            if (FileUtil::IsFileExists(_execute)) unlink(_execute.c_str());
+
+            std::string _stdin = PathUtil::Stdin(file_name);
+            if (FileUtil::IsFileExists(_stdin)) unlink(_stdin.c_str());
+
+            std::string _stdout = PathUtil::Stdout(file_name);
+            if (FileUtil::IsFileExists(_stdout)) unlink(_stdout.c_str());
+
+            std::string _stderr = PathUtil::Stderr(file_name);
+            if (FileUtil::IsFileExists(_stderr)) unlink(_stderr.c_str());
         }
         /***********************************************************
          * 输入:
@@ -150,6 +173,9 @@ namespace ns_compile_and_run
             // 反序列化工作
             Json::StyledWriter writer;
             *out_json = writer.write(out_value);
+
+            // 将代码结果带走之后，清理临时文件
+            RemoveTempFile(file_name);
 
             /***********************************************
             if (code.size() == 0) // 代码文件出错

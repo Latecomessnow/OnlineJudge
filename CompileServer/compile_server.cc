@@ -4,16 +4,37 @@
 using namespace ns_compile_and_run;
 using namespace httplib;
 
-int main()
+void Usage(std::string proc)
 {
+    std::cerr << "Usage: " << "\n\t" << proc << " port\n" << std::endl;
+}
+int main(int argc, char* argv[])
+{
+    if (argc != 2)
+    {
+        Usage(argv[0]);
+        return 1;
+    }
     Server svr;
 
     svr.Get("/hello", [](const Request &req, Response &resp){
-        resp.set_content("hello http, 你好 http!", "content-type: text/plain;cahrset=utf-8");
+        // 测试
+        resp.set_content("hello http, 你好 http!", "text/plain;charset=utf-8");
     });
 
-    svr.set_base_dir("./wwwroot");
-    svr.listen("0.0.0.0", 8080);
+    svr.Post("/compile_and_run", [](const Request &req, Response & resp){
+        // 用户请求的服务正文正是我们想要的json string
+        std::string in_json = req.body; // 请求正文
+        std::string out_json;
+        if (!in_json.empty())
+        {
+            CompileAndRun::Start(in_json, &out_json);
+            resp.set_content(out_json, "application/json;charset=utf-8");
+        }
+    });
+
+    // svr.set_base_dir("./wwwroot");
+    svr.listen("0.0.0.0", atoi(argv[1]));
 
     return 0;
 }
