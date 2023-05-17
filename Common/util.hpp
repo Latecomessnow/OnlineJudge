@@ -132,4 +132,16 @@ namespace ns_util
             return true;
         }
     };
+    class StringUtil
+    {
+    public:
+        /*******************************************************
+         * str : 输入性参数 待切分的字符v换字符串
+         * target : 输出型参数 保存切分完毕的结果
+         * sep : 指定的分隔符
+        */
+        static void SplitString(const std::string &str, std::vector<std::string> *target, const std::string &sep)
+        {
+        }
+    };
 } // namespace ns_util
