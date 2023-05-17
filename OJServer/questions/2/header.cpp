@@ -2,17 +2,16 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <algorithm>
 
 using namespace std;
 
 class Solution
 {
 public:
-    bool isPalindrome(int x)
+    int Max(const vector<int> &v)
     {
-        // code write here
+        // write code here
 
-        return true;
+        return 0;
     }
 };
