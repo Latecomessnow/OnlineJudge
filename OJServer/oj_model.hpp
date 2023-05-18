@@ -5,15 +5,17 @@
 #include <vector>
 #include <unordered_map>
 #include <fstream>
-#include "../Common/util.hpp"
 #include <cassert>
 #include <stdlib.h>
+#include "../Common/util.hpp"
+#include "../Common/log.hpp"
 
 // 根据题目list文件，加载所有题目信息到内存中
 // model: 主要用来和数据进行交互，对外提供访问数据的接口
 namespace ns_model
 {
     using namespace ns_util;
+    using namespace ns_log;
     // 题目细节
     struct Question
     {
@@ -28,7 +30,7 @@ namespace ns_model
     };
 
     const std::string questions_list = "./questions/questions/list";
-    const std::string questions_path = "./questions";
+    const std::string questions_path = "./questions/";
     class Model
     {
     private:
@@ -45,7 +47,12 @@ namespace ns_model
         {
             // 加载配置文件: questions/questions.list + 题目编号文件
             std::ifstream in(questions_list);
-            if (!in.is_open()) return false;
+            if (!in.is_open())
+            {
+                LOG(FATAL) << "加载题目文件失败, 请检查题库文件是否存在"
+                           << "\n";
+                return false;
+            }
             std::string line;
             // 从in这个流中按行读取到line中
             while (std::getline(in, line))
@@ -54,7 +61,12 @@ namespace ns_model
                 std::vector<std::string> tokens;
                 StringUtil::SplitString(line, &tokens, " ");
                 // 1 判断回文数 简单 1 30000
-                if (tokens.size() != 5) continue;
+                if (tokens.size() != 5)
+                {
+                    LOG(WARNING) << "加载某个题目失败, 请检查题目格式"
+                                 << "\n";
+                    continue;
+                }
                 Question q;
                 q.number = tokens[0];
                 q.title = tokens[1];
@@ -62,19 +74,29 @@ namespace ns_model
                 q.cpu_limit = atoi(tokens[3].c_str());
                 q.mem_limit = atoi(tokens[4].c_str());
 
+                // 构建题目路径
                 std::string question_number_path = questions_path;
                 question_number_path += q.number;
+                question_number_path += "/";
 
-                q.desc = ;
-                q.header = ;
-                q.tail = ;
+                // 读取题目文件内的内容
+                FileUtil::ReadFile(question_number_path + "desc.txt", &(q.desc), true);
+                FileUtil::ReadFile(question_number_path + "header.cpp", &(q.header), true);
+                FileUtil::ReadFile(question_number_path + "tail.cpp", &(q.tail), true);
+
+                questions.insert({q.number, q});
             }
+            LOG(INFO) << "加载题库成功"
+                      << "\n";
             in.close();
         }
         bool GetAllQuestions(std::vector<Question> *out)
         {
             if (questions.size() == 0)
+            {
+                LOG(FATAL) << "获取题目库失败" << "\n";
                 return false;
+            }
             for (const auto &q : questions)
                 out->push_back(q.second);
             return true;
@@ -82,11 +104,17 @@ namespace ns_model
         bool GetOneQuestion(const std::string &number, Question *q)
         {
             if (questions.size() == 0)
+            {
+                LOG(WARNING) << "获取某个题目失败" << "\n";
                 return false;
+            }
             const std::unordered_map<std::string, Question>::iterator &iter = questions.find(number);
             // const auto &iter = questions.find(number);
             if (iter == questions.end())
+            {
+                LOG(ERROR) << "用户获取题目失败, 题目编号: " << number << "\n";
                 return false;
+            }
             (*q) = iter->second;
             return true;
         }
