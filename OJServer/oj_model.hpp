@@ -79,6 +79,7 @@ namespace ns_model
                 question_number_path += q.number;
                 question_number_path += "/";
 
+                // 题目描述与头尾代码
                 // 读取题目文件内的内容
                 FileUtil::ReadFile(question_number_path + "desc.txt", &(q.desc), true);
                 FileUtil::ReadFile(question_number_path + "header.cpp", &(q.header), true);
