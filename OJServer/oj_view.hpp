@@ -33,7 +33,7 @@ namespace ns_view
             }
             
             // 3. 获取被渲染的html                                                    // 不对html做任何的删除
-            ctemplate::Template *tpl = ctemplate::Template::GetTemplate(src_html, ctemplate::DO_NOT_STRIP)
+            ctemplate::Template *tpl = ctemplate::Template::GetTemplate(src_html, ctemplate::DO_NOT_STRIP);
 
             // 4. 开始完成渲染功能
             tpl->Expand(html, &root);
