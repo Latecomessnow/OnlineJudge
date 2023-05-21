@@ -6,6 +6,7 @@
 #include <mutex>
 #include <fstream>
 #include <cassert>
+#include <jsoncpp/json/json.h>
 #include "../Common/util.hpp"
 #include "../Common/log.hpp"
 #include "oj_model.hpp"
@@ -31,7 +32,6 @@ namespace ns_control
         {
         }
         ~Machine() {}
-
     public:
         // 提升主机负载
         void IncLoad()
@@ -71,7 +71,6 @@ namespace ns_control
         std::vector<int> offline;
         // 保护LoadBlance数据
         std::mutex mtx;
-
     public:
         LoadBlance()
         {
@@ -80,7 +79,6 @@ namespace ns_control
                       << "\n";
         }
         ~LoadBlance() {}
-
     public:
         bool LoadConf(const std::string &machine_conf)
         {
@@ -118,7 +116,7 @@ namespace ns_control
         }
         // id : 输出型参数
         // m : 输出型参数
-        bool SmartChioce(int *id, Machine **m)
+        bool SmartChoice(int *id, Machine **m)
         {
             // 1. 使用选择好的主机(更新该主机的负载)
             // 2. 我们可能需要离线该主机
@@ -207,10 +205,28 @@ namespace ns_control
         // id : 1
         // code : #include
         // input : ""
-        void Judge(const std::string in_json, std::string *out_json)
+        void Judge(const std::string &number, const std::string in_json, std::string *out_json)
         {
+            // 0. 根据题目编号，直接拿到对应的题目细节
+            struct Question q;
+            _model.GetOneQuestion(number, &q);
+
             // 1. 将in_json做反序列化工作，得到id、code、input
+            Json::Reader reader;
+            Json::Value in_value;
+            reader.parse(in_json, in_value);
+            std::string code = in_value["code"].asString();
+
             // 2. 重新拼装用户代码+测试用例代码，形成新的代码
+            Json::Value compile_value;
+            compile_value["input"] = in_value["input"].asString();
+            compile_value["code"] = code + q.tail;
+            compile_value["cpu_limit"] = q.cpu_limit;
+            compile_value["mem_limit"] = q.mem_limit;
+            // 将形成的这个具有完整代码和时空要求的代码转成json串数据发送给compile_server服务
+            Json::FastWriter writer;
+            std::string compile_string = writer.write(compile_value);
+            
             // 3. oj_control选择负载最小的主机(差错处理)
             // 4. 发起http请求，得到结果
             // 5. 将结果赋值给out_json
