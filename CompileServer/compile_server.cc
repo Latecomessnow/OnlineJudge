@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
         }
     });
 
-    // svr.set_base_dir("./wwwroot");
+    svr.set_base_dir("../wwwroot");
     svr.listen("0.0.0.0", atoi(argv[1]));
 
     return 0;
