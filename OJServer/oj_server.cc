@@ -29,7 +29,7 @@ int main()
     // 2，用户根据题目编号获取特定题目内容
     // /questions/100 正则匹配: \d代表的是匹配的是数字，+代表的是一个或多个
     // R"()"->原始字符raw string, 保持字符串原貌，不用做相关的转义
-    svr.Get(R"(/questions/(\d+))", [&ctrl](const Request &req, Response &resp)
+    svr.Get(R"(/question/(\d+))", [&ctrl](const Request &req, Response &resp)
             {
                 std::string number = req.matches[1]; // 100
                 std::string html;
@@ -39,11 +39,26 @@ int main()
                 // resp.set_content("这是指定的一道题: " + number, "text/plain; charset=utf-8");
             });
 
+    // // 3. 用户提交代码，使用我们的判题功能(1. 每道题的测试用例 2. 调用compile_and_run)
+    // svr.Get(R"(/judge/(\d+))", [&ctrl](const Request &req, Response &resp)
+    //         {
+    //             std::string number = req.matches[1];
+    //             std::string result_json;
+    //             ctrl.Judge(number, req.body, &result_json);
+    //             resp.set_content(result_json, "application/json;charset=utf-8");
+    //             // resp.set_content("指定题目的判题: " + number, "text/plain; charset=utf-8");
+    //         });
+
     // 3. 用户提交代码，使用我们的判题功能(1. 每道题的测试用例 2. 调用compile_and_run)
-    svr.Get(R"(/judge/(\d+))", [](const Request &req, Response &resp)
+    // 使用http的post方法去请求
+    svr.Post(R"(/judge/(\d+))", [&ctrl](const Request &req, Response &resp)
             {
-        std::string number = req.matches[1];
-        resp.set_content("指定题目的判题: " + number, "text/plain; charset=utf-8"); });
+                std::string number = req.matches[1];
+                std::string result_json;
+                ctrl.Judge(number, req.body, &result_json);
+                resp.set_content(result_json, "application/json;charset=utf-8");
+                // resp.set_content("指定题目的判题: " + number, "text/plain; charset=utf-8");
+            });
 
     svr.set_base_dir("./wwwroot");
 
