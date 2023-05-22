@@ -1,4 +1,4 @@
-#ifndef COMPILE_ONLINE
+#ifndef COMPILER_ONLINE
 #include "header.cpp"
 #endif
 

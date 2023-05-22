@@ -1,4 +1,6 @@
-#ifndef COMPILE_ONLINE
+// 最后header和tail会被拼接在一块，再进行#include "header.cpp"则会报错
+// 所以可在编译运行时的程序替换出用-D选项进行宏定义去掉这部分的代码
+#ifndef COMPILER_ONLINE
 #include "header.cpp"
 #endif
 
