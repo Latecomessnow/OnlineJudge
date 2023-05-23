@@ -15,7 +15,7 @@ namespace ns_view
         View(){}
         ~View(){}
     public:
-        bool AllExpandHtml(const std::vector<struct Question> &questions, std::string *html)
+        void AllExpandHtml(const std::vector<struct Question> &questions, std::string *html)
         {
             // 题目的编号 题目的标题 题目的难度
             // 推荐使用表格显示
@@ -31,17 +31,27 @@ namespace ns_view
                 sub->SetValue("title", q.title);
                 sub->SetValue("star", q.star);
             }
-            
             // 3. 获取被渲染的html                                                    // 不对html做任何的删除
             ctemplate::Template *tpl = ctemplate::Template::GetTemplate(src_html, ctemplate::DO_NOT_STRIP);
 
             // 4. 开始完成渲染功能
             tpl->Expand(html, &root);
-            return true;
         }
-        bool OneExpandHtml(const struct Question &q, std::string *html)
+        void OneExpandHtml(const struct Question &q, std::string *html)
         {
-            return true;
+            // 1. 形成路径
+            std::string src_html = template_path + "one_question.html";
+            // 2. 形成数据字典
+            ctemplate::TemplateDictionary root("one_question");
+            root.SetValue("number", q.number);
+            root.SetValue("tile", q.title);
+            root.SetValue("star", q.star);
+            root.SetValue("desc", q.desc);
+            root.SetValue("pre_code", q.header);
+            // 3. 获取被渲染的html
+            ctemplate::Template *tpl = ctemplate::Template::GetTemplate(src_html, ctemplate::DO_NOT_STRIP);
+            // 4. 开始渲染
+            tpl->Expand(html, &root);
         }
     };
 }
