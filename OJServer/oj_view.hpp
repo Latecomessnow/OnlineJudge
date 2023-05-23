@@ -44,7 +44,7 @@ namespace ns_view
             // 2. 形成数据字典
             ctemplate::TemplateDictionary root("one_question");
             root.SetValue("number", q.number);
-            root.SetValue("tile", q.title);
+            root.SetValue("title", q.title);
             root.SetValue("star", q.star);
             root.SetValue("desc", q.desc);
             root.SetValue("pre_code", q.header);
