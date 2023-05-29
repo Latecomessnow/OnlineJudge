@@ -29,7 +29,7 @@ namespace ns_model
         int mem_limit;      // 空间要求(KB)
     };
 
-    const std::string questions_list = "./questions/questions/list";
+    const std::string questions_list = "./questions/questions.list";
     const std::string questions_path = "./questions/";
     class Model
     {
@@ -90,12 +90,13 @@ namespace ns_model
             LOG(INFO) << "加载题库成功"
                       << "\n";
             in.close();
+            return true;
         }
         bool GetAllQuestions(std::vector<Question> *out)
         {
             if (questions.size() == 0)
             {
-                LOG(FATAL) << "获取题目库失败" << "\n";
+                LOG(FATAL) << "获取题库失败" << "\n";
                 return false;
             }
             for (const auto &q : questions)
@@ -106,7 +107,7 @@ namespace ns_model
         {
             if (questions.size() == 0)
             {
-                LOG(WARNING) << "获取某个题目失败" << "\n";
+                LOG(WARNING) << "获取" << number << "题目失败" << "\n";
                 return false;
             }
             const std::unordered_map<std::string, Question>::iterator &iter = questions.find(number);

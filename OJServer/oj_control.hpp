@@ -6,6 +6,7 @@
 #include <mutex>
 #include <fstream>
 #include <cassert>
+#include <algorithm>
 #include <jsoncpp/json/json.h>
 #include "../Common/util.hpp"
 #include "../Common/log.hpp"
@@ -48,22 +49,25 @@ namespace ns_control
         // 降低主机负载
         void DecLoad()
         {
-            if (mtx)
-                mtx->lock();
+            if (mtx) mtx->lock();
             load--;
-            if (mtx)
-                mtx->unlock();
+            if (mtx) mtx->unlock();
         }
         // 获取主机负载，意义不大只是为了统一接口
         uint64_t Load()
         {
             uint64_t _load = 0;
-            if (mtx)
-                mtx->lock();
+            if (mtx) mtx->lock();
             _load = load;
-            if (mtx)
-                mtx->unlock();
+            if (mtx) mtx->unlock();
             return _load;
+        }
+        // 清空主机负载
+        void ResetLoad()
+        {
+            if (mtx) mtx->lock();
+            load = 0;
+            if (mtx) mtx->unlock();
         }
     };
     const std::string service_machine = "./conf/service_machine.conf";
@@ -162,7 +166,12 @@ namespace ns_control
         }
         void OnlineMachine()
         {
-            
+            // 上线所有主机
+            mtx.lock();
+            online.insert(online.end(), offline.begin(), offline.end());
+            offline.erase(offline.begin(), offline.end());
+            mtx.unlock();
+            LOG(INFO) << "所有主机已上线" << "\n";
         }
         void OfflineMachine(int which)
         {
@@ -173,6 +182,9 @@ namespace ns_control
                 // 找到离线主机
                 if (*iter == which)
                 {
+                    // 离线主机前需要将主机的负载的负载清空，否则在下一次上线主机时会使用之前已经存在的负载
+                    // 应将主机负载清0，这样下一次上线时主机负载就是0了，选择主机时就会选择该主机
+                    machines[which].ResetLoad();
                     online.erase(iter);
                     // offline.push_back(*iter); // 迭代器已经生效，不能再写*iter
                     offline.push_back(which);
@@ -215,6 +227,10 @@ namespace ns_control
         ~Control() {}
 
     public:
+        void RecoveryMachine()
+        {
+            _load_blance.OnlineMachine();
+        }
         // 根据题目数据构建网页
         // html: 输出型参数
         bool AllQuestions(std::string *html)
@@ -223,6 +239,11 @@ namespace ns_control
             std::vector<struct Question> all;
             if (_model.GetAllQuestions(&all))
             {
+                // 获取题目列表上来后对题目列表进行升序排序, 即对vector进行排序
+                sort(all.begin(), all.end(), [](const struct Question& q1, const struct Question& q2){
+                    // number是字符串类型
+                    return atoi(q1.number.c_str()) < atoi(q2.number.c_str());
+                });
                 // 获取所有题目信息成功，将所有的题目构建成网页
                 _view.AllExpandHtml(all, html);
             }
@@ -287,7 +308,7 @@ namespace ns_control
                 // 4. 发起http请求，得到结果
                 Client cli(m->ip, m->port);
                 m->IncLoad();
-                LOG(INFO) << " 选择主机成功, 主机id: " << id << " 详情: " << m->ip << ":" << m->port << "\n";
+                LOG(INFO) << " 选择主机成功, 主机id: " << id << " 详情: " << m->ip << ":" << m->port << " 当前主机负载: " << m->Load() << "\n";
                 if (auto res = cli.Post("/compile_and_run", compile_string, "application/json;charset=utf-8"))
                 {
                     // 有可能会出现请求失败
