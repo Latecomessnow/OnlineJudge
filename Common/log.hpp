@@ -45,5 +45,7 @@ namespace ns_log
     }
 // Log() << "message"  // 带#号可以直接传过去的是字符，而不是整数了
 // 开放式日志接口
+// __FILE__：它是一个预定义的宏，可以扩展为当前源文件的名称作为字符串文字。
+// __LINE__：这是一个预定义的宏，将当前行号扩展为一个整数。
 #define LOG(level) Log(#level, __FILE__, __LINE__)
 }
