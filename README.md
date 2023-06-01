@@ -50,6 +50,10 @@
 - compile只负责编译服务
     
     编写一个编译类，创建出一个子进程把客户端发送过来的代码文件通过execlp程序替换调用g++编译器去编译代码文件，期间创建一个临时文件，并把标准错误重定向到该临时文件中，以便客户端能够看到编译报错的错误信息
+    ```C++
+    execlp("g++", "g++", "-o", PathUtil::Exe(file_name).c_str(),
+                        PathUtil::Src(file_name).c_str(), "-std=c++11", "-D", "COMPILER_ONLINE", nullptr /*程序替换最后一个参数为空*/);
+    ```
 
 - runner只负责运行编译生成的可执行程序
 
