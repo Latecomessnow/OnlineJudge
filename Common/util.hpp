@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <boost/algorithm/string.hpp>
 
 // 编译模块，运行模块都有可能会用上的添加后缀名...
 namespace ns_util
@@ -142,6 +143,8 @@ namespace ns_util
         */
         static void SplitString(const std::string &str, std::vector<std::string> *target, const std::string &sep)
         {
+            // 将读取到的str字符串切分放到vector中
+            boost::split((*target), str, boost::is_any_of(sep), boost::algorithm::token_compress_on);
         }
     };
 } // namespace ns_util
