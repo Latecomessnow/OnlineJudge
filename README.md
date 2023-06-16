@@ -12,6 +12,8 @@
 * Ace前端在线编辑器
 * html/css/js/jquery/ajax 
 
+## 项目地址
+    119.91.112.204:8080
 ## 1. 项目宏观结构
 
 1. Common模块: 公共模块
@@ -54,6 +56,7 @@
     execlp("g++", "g++", "-o", PathUtil::Exe(file_name).c_str(),
                         PathUtil::Src(file_name).c_str(), "-std=c++11", "-D", "COMPILER_ONLINE", nullptr /*程序替换最后一个参数为空*/);
     ```
+    
 
 - runner只负责运行编译生成的可执行程序
 
@@ -82,7 +85,9 @@
 - compile_run负责去编译并运行客户端代码
 
     需要知道的是客户端发送过来给服务端的代码是通过json串传过来的，需要对json串进行反序列化的过程，可compile_run就是负责调用编译和运行服务，并去处理序列化和反序列化工作，并对程序运行的退出码做出相应的文件记录，最后还需要对这些编译运行过程中形成的临时文件进行清理工作
-
+    ```C++
+    static void Start(const std::string &in_json, std::string *out_json)
+    ```
        * 输入:
        * code: 用户提交提交过来的代码
        * stdin: 用户有可能进行标准输入，可做扩展
@@ -97,7 +102,49 @@
        * 选填:
        * stdout: 程序运行完的结果
        * stderr: 程序运行完的错误结果
+    
 
-- compile_server
+    把用户提交过来的in_json串含有的以下东西进行反序列化工作
 
+        1. code: 用户在OJ上编写的代码并经过本地拼接之后的完整代码
+        2. input: 可做扩展用，提供用户进行标准输入
+        3. cpu_limit: 代码的时间限制
+        4. mem_limit: 代码的空间限制
+   反序列化工作完成后得到一个序列化的json串，就可以获得json串中相应的信息了，再对其中的的代码文件进行编译并运行，将运行之后的结果存进out_value序列化的json串中，然后再反序列化给our_json
+   ```C++
+    out_value["status"] = status_code;
+    out_value["reason"] = CodeToDesc(status_code, file_name);
+    ```
+    最后填入编译并运行之后的退出码和运行结果信息，然后清理产生的临时文件
+
+- compile_server.cc
+    主函数，主要负责启动后端的编译服务，将能够提供编译服务的主机启动起来，并能够去处理请求编译服务的HTTP请求，对HTTP请求进行响应
+    ```C++
+        svr.Post("/compile_and_run", [](const Request &req, Response & resp){
+        // 用户请求的服务正文正是我们想要的json string
+        std::string in_json = req.body; // 请求正文
+        std::string out_json;
+        if (!in_json.empty())
+        {
+            CompileAndRun::Start(in_json, &out_json);
+            resp.set_content(out_json, "application/json;charset=utf-8");
+        }
+    });
+    ```
+    再去获取编译并运行代码后的结果out_json，然后构建响应发送回客户端
 ## 6. OJServer模块
+
+基于MVC结构的oj服务设计，搭建一个小型网站
+
+    1. 获取首页，用题目列表充当
+    2. 编辑区域页面
+    3. 提交判题功能(编译并运行)
+   
+    M: Model,通常是和数据交互的模块，比如，对题库进行增删改查（文件版，MySQL）
+    V: view, 通常是拿到数据之后，要进行构建网页，渲染网页内容，展示给用户的(浏览器)
+    C: control, 控制器，就是我们的核心业务逻辑
+### 第一个功能: 用户请求的服务路由功能
+    用户在浏览器网页端，有可能会请求网站首页，或题目列表，或某一道特定题目，还有可能会提交代码，服务路由功能需要对这些不同请求做出相应的响应，在oj_server.cc中调用Control模块进行对上述请求的处理，如获取题目列表，就去调用Control的Questions函数获取所有题目列表的html网页，获取某道题目就调用Control的Qestion(num, html)获取某道题的网页，还有提交代码就调用Control的Judge函数去调用编译服务
+
+### 第二个功能: Model功能，提供对数据的操作
+
