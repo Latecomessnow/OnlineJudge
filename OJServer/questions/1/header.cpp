@@ -11,7 +11,7 @@ class Solution
 public:
     bool isPalindrome(int x)
     {
-        // code write here
+        // write code here
 
         return true;
     }
