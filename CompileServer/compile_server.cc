@@ -8,6 +8,8 @@ void Usage(std::string proc)
 {
     std::cerr << "Usage: " << "\n\t" << proc << " port\n" << std::endl;
 }
+
+// 启动编译服务，./compile_server 8081 ./compile_server 8082 ./compile_server 8083...
 int main(int argc, char* argv[])
 {
     if (argc != 2)
