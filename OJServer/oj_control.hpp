@@ -147,7 +147,7 @@ namespace ns_control
                            << "\n";
                 return false;
             }
-            // 遍历找到最小负载的主机
+            // 遍历找到负载最小的主机
             *id = online[0];
             *m = &machines[online[0]];
             uint64_t min_load = machines[online[0]].Load();
