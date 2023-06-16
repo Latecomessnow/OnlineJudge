@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "../Common/util.hpp"
-#include "../Common/log.hpp"
+#include "../Common/log.hpp"    
 
 // 只负责进行代码的编译
 
@@ -42,7 +42,7 @@ namespace ns_compiler
             else if (pid == 0)
             {
                 umask(0);
-                // 子进程有可能编译失败，将编译器生成的标准重定向到一个临时文件
+                // 子进程有可能编译失败，将编译器生成的标准错误重定向到一个临时文件
                 int stderr = open(PathUtil::CompileError(file_name).c_str(), O_CREAT | O_WRONLY, 0644);
                 if (stderr < 0)
                 {
@@ -59,7 +59,7 @@ namespace ns_compiler
                 // 程序替换，g++ -o target src -std=c++11
                 // 要先告诉执行的是g++方法，然后才是g++ 后的命令
                 execlp("g++", "g++", "-o", PathUtil::Exe(file_name).c_str(),
-                       PathUtil::Src(file_name).c_str(), "-std=c++11", nullptr /*程序替换最后一个参数为空*/);
+                       PathUtil::Src(file_name).c_str(), "-std=c++11", "-D", "COMPILER_ONLINE", nullptr /*程序替换最后一个参数为空*/);
                 // 程序替换一般不会失败，如果失败了走到这则说明没有成功的形成可执行文件
                 LOG(ERROR) << "启动g++编译器失败，可能是参数出现了错误"
                            << "\n";
