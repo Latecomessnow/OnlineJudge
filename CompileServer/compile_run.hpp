@@ -42,10 +42,10 @@ namespace ns_compile_and_run
                 FileUtil::ReadFile(PathUtil::CompileError(file_name), &desc, true);
                 break;
             case SIGABRT: // 6
-                desc = "代码使用内存超过限制";
+                desc = "Space Overrun";
                 break;
             case SIGXCPU: // 24
-                desc = "CPU使用超时";
+                desc = "Time Limit Exceeded";
                 break;
             case SIGFPE: // 8
                 desc = "浮点数溢出错误";
