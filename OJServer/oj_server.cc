@@ -32,7 +32,7 @@ int main()
                 std::string html;
                 ctrl.AllQuestions(&html);
                 resp.set_content(html, "text/html; charset=utf-8");
-
+                
                 // 设置响应内容
                 // resp.set_content("这是所有题目的列表", "text/plain; charset=utf-8");
             });
@@ -44,6 +44,7 @@ int main()
             {
                 std::string number = req.matches[1]; // 100
                 std::string html;
+                // 构建特定题目的网页信息
                 ctrl.Question(number, &html);
                 resp.set_content(html, "text/html; charset=utf-8");
 
