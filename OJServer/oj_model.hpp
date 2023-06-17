@@ -28,7 +28,7 @@ namespace ns_model
         int cpu_limit;      // 时间要求(S)
         int mem_limit;      // 空间要求(KB)
     };
-
+    
     const std::string questions_list = "./questions/questions.list";
     const std::string questions_path = "./questions/";
     class Model
