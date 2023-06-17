@@ -40,11 +40,9 @@ namespace ns_control
         // 提升主机负载
         void IncLoad()
         {
-            if (mtx)
-                mtx->lock();
+            if (mtx) mtx->lock();
             load++;
-            if (mtx)
-                mtx->unlock();
+            if (mtx) mtx->unlock();
         }
         // 降低主机负载
         void DecLoad()
