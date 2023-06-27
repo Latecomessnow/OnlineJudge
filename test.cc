@@ -9,7 +9,7 @@
 int main()
 {
     std::string in_html = "./test.html";
-    std::string value = "比特就业课";
+    std::string value = "测试";
 
     // 形成数据字典
     ctemplate::TemplateDictionary root("test"); //unordered_map<> test;
