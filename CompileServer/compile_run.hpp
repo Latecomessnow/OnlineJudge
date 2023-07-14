@@ -104,6 +104,7 @@ namespace ns_compile_and_run
             // 进行反序列化工作
             Json::Value in_value;
             Json::Reader reader;
+            // 将字符串数据转成结构化数据并存到in_value中
             reader.parse(in_json, in_value); // 最后再处理差错
 
             std::string code = in_value["code"].asString();
