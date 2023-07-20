@@ -10,7 +10,7 @@
 #include <jsoncpp/json/json.h>
 #include "../Common/util.hpp"
 #include "../Common/log.hpp"
-#include "oj_model.hpp"
+#include "oj_model_file.hpp"
 #include "oj_view.hpp"
 #include "../Common/httplib.h"
 
