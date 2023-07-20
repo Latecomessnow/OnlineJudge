@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cassert>
 #include <stdlib.h>
+#include "include/mysql.h"
 #include "../Common/util.hpp"
 #include "../Common/log.hpp"
 
@@ -32,7 +33,11 @@ namespace ns_model
     };
     
     const std::string oj_questions = "oj_questions";
-
+    const std::string host = "127.0.0.1";
+    const std::string user = "oj_client";
+    const std::string password = "guet@4402.snow";
+    const std::string database = "oj";
+    const int port = 3306;
     class Model
     {
     public:
@@ -40,7 +45,24 @@ namespace ns_model
         ~Model() {}
         bool QueryMySQL(const std::string &sql, std::vector<Question> *out)
         {
-            
+            // 1. 创建MySQL句柄
+            MYSQL *my = mysql_init(nullptr);
+
+            // 2. 连接数据库
+            if (nullptr == mysql_real_connect(my, host.c_str(), user.c_str(), password.c_str(), database.c_str(), port, nullptr, 0))
+            {
+                LOG(FATAL) << "连接数据库失败!" << "\n";
+                return false;
+            }
+            LOG(INFO) << "连接数据库成功~" << "\n";
+
+            // 3. 执行sql语句
+            if (mysql_query(my, sql.c_str()) == 0) // 执行成功返回0
+            {
+                
+            }
+            // 关闭MySQL连接
+            mysql_close(my);
         }
         bool GetAllQuestions(std::vector<Question> *out)
         {
