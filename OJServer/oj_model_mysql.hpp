@@ -37,7 +37,7 @@ namespace ns_model
     const std::string user = "oj_client";
     const std::string password = "guet@4402.snow";
     const std::string database = "oj";
-    const int port = 3306;
+    const int port = 8000;
     class Model
     {
     public:
