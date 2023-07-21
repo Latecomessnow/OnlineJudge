@@ -10,7 +10,8 @@
 #include <jsoncpp/json/json.h>
 #include "../Common/util.hpp"
 #include "../Common/log.hpp"
-#include "oj_model_file.hpp"
+// #include "oj_model_file.hpp"
+#include "oj_model_mysql.hpp"
 #include "oj_view.hpp"
 #include "../Common/httplib.h"
 
@@ -286,7 +287,8 @@ namespace ns_control
             // 2. 重新拼装用户代码+测试用例代码，形成新的代码
             Json::Value compile_value;
             compile_value["input"] = in_value["input"].asString();
-            compile_value["code"] = code + q.tail;
+            // 将头部和尾部的代码做一个换行以却分开，否则可能会些编译问题
+            compile_value["code"] = code + "\n" + q.tail;
             compile_value["cpu_limit"] = q.cpu_limit;
             compile_value["mem_limit"] = q.mem_limit;
             // 将形成的这个具有完整代码和时空要求的代码转成json串数据发送给compile_server服务
