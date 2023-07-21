@@ -2,14 +2,15 @@
 ## 项目演示
 - 项目首页  
   
-    ![Alt text](image.png)  
-- 题目列表  
-  
-  ![Alt text](image-1.png)  
-
+    ![image](https://github.com/Latecomessnow/OnlineJudge/assets/101911487/ca8afbfa-b2ee-4bee-8820-35f77e30f5a7)
+ 
+- 题目列表
+   
+  ![image](https://github.com/Latecomessnow/OnlineJudge/assets/101911487/540759d8-3878-492b-aea9-965740246e6f)
+ 
 - 在线判题  
   
-  ![Alt text](image-2.png)
+  ![image](https://github.com/Latecomessnow/OnlineJudge/assets/101911487/47cd3875-a9d0-433f-91f4-9ceb27f22ac6)
 
 ## 技术栈
 * C++ STL 标准库
@@ -171,7 +172,7 @@ Control模块是核心业务逻辑模块，负责负载均衡的设计，还负�
 通过Model模块拿到数据后，再利用Ctemplate库进行网页的渲染
 
 ## MySQL版本
-   创建表结构  
+   - 创建表结构  
 
 ```Java
     create table if not exists `oj_questions`(
