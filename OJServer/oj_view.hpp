@@ -3,7 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "oj_model.hpp"
+// #include "oj_model_file.hpp"
+#include "oj_model_mysql.hpp"
 #include <ctemplate/template.h>
 namespace ns_view
 {
