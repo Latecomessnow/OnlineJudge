@@ -1,5 +1,15 @@
 # 负载均衡OJ
 ## 项目演示
+- 项目首页  
+  
+    ![Alt text](image.png)  
+- 题目列表  
+  
+  ![Alt text](image-1.png)  
+
+- 在线判题  
+  
+  ![Alt text](image-2.png)
 
 ## 技术栈
 * C++ STL 标准库
@@ -161,4 +171,17 @@ Control模块是核心业务逻辑模块，负责负载均衡的设计，还负�
 通过Model模块拿到数据后，再利用Ctemplate库进行网页的渲染
 
 ## MySQL版本
-   创建表
+   创建表结构  
+
+```Java
+    create table if not exists `oj_questions`(
+    number int primary key auto_increment comment '题目的编号',
+    title varchar(64) not null comment '题目的标题',
+    star varchar(8) not null comment '题目的难度',
+    desc text not null comment '题目描述',
+    header text not null comment '题目头部，给用户看的代码',
+    tail text not null comment '题目尾部，包含我们的测试用例',
+    cpu_limit int default 1 comment '题目的时间限制',
+    mem_limit int default 5000000 comment '题目的空间限制'
+    )engine=innodb default charset=utf8;
+```
