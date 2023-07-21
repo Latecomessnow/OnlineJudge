@@ -49,20 +49,50 @@ namespace ns_model
             MYSQL *my = mysql_init(nullptr);
 
             // 2. 连接数据库
-            if (nullptr == mysql_real_connect(my, host.c_str(), user.c_str(), password.c_str(), database.c_str(), port, nullptr, 0))
+            if (mysql_real_connect(my, host.c_str(), user.c_str(), password.c_str(), database.c_str(), port, nullptr, 0) == nullptr)
             {
                 LOG(FATAL) << "连接数据库失败!" << "\n";
                 return false;
             }
+
+            // 一定要设置该链接的编码格式, 要不然页面会出现乱码问题
+            mysql_set_character_set(my, "utf8");
             LOG(INFO) << "连接数据库成功~" << "\n";
 
             // 3. 执行sql语句
-            if (mysql_query(my, sql.c_str()) == 0) // 执行成功返回0
+            if (mysql_query(my, sql.c_str()) != 0) // 执行成功返回0
             {
-                
+                LOG(WARNING) << sql << " execute error!" << "\n";
+                return false;
             }
+
+            // 提取结果
+            MYSQL_RES * res = mysql_store_result(my);
+
+            // 分析结果
+            int rows = mysql_num_rows(res); // 获得行数量
+            int cols = mysql_num_fields(res); // 获得列数量
+
+            struct Question q;
+            for (int i = 0; i < rows; i++)
+            {
+                // 从表中按行拿取数据
+                MYSQL_ROW row = mysql_fetch_row(res);
+                q.number = row[0];
+                q.title = row[1];
+                q.star = row[2];
+                q.desc = row[3];
+                q.header = row[4];
+                q.tail = row[5];
+                q.cpu_limit = atoi(row[6]);
+                q.mem_limit = atoi(row[7]);
+                out->push_back(q);
+            }
+            // 释放结果空间
+            free(res);
             // 关闭MySQL连接
             mysql_close(my);
+            return true;
         }
         bool GetAllQuestions(std::vector<Question> *out)
         {
