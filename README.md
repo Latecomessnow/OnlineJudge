@@ -2,8 +2,7 @@
 
 ## 项目简介  
 项目的核心框架是由OJ服务器模块和编译并运行模块两个模块构成的。用户访问网站，有可能会请求题目列表，有可能会请求编写某道题，还有可能会提交代码判题，OJ服务器需要去做这些路由工作，根据不同的请求去构建数据返回对应的网页信息。如果是请求判题的话，OJ服务器还需要去找到负载最小的主机请求编译并运行服务(编译并运行服务也是一套网络服务)，返回相应的结果给用户，框架图如下。
-
-    ![image](https://github.com/Latecomessnow/OnlineJudge/assets/101911487/18ee3158-e55c-495c-94db-37a3ebdf793c)
+    ![image](https://github.com/Latecomessnow/OnlineJudge/assets/101911487/ff417eec-00de-4ebc-b3d7-9f9138d1a5b4)
 
 ## 项目演示
 - 项目首页  
